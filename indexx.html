@@ -1,0 +1,961 @@
+<html lang="uk" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYM STORE — Домашні настоянки, аджика та крафтові закрутки</title>
+    <!-- Підключення Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Підключення шрифтів Google Fonts з підтримкою кирилиці -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Cormorant Garamond', 'serif'],
+                    },
+                    colors: {
+                        wood: {
+                            950: '#120f0d',
+                            900: '#1a1512',
+                            800: '#251e1a',
+                            700: '#362c26',
+                        },
+                        ambercraft: {
+                            400: '#f59e0b',
+                            500: '#d97706',
+                            600: '#b45309',
+                        },
+                        terracotta: {
+                            500: '#c2410c',
+                            600: '#9a3412',
+                        },
+                        olivecraft: {
+                            500: '#65a30d',
+                            900: '#1a2e05',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Кастомний скролбар та плавні анімації */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #120f0d;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #362c26;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #d97706;
+        }
+        .craft-pattern {
+            background-image: radial-gradient(rgba(217, 119, 6, 0.08) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .glass-panel {
+            background: rgba(26, 21, 20, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-wood-950 text-stone-200 font-sans antialiased selection:bg-ambercraft-500 selection:text-white">
+
+    <!-- Повідомлення (Toast notification замість alert) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- ========================================== -->
+    <!-- 1. ШАПКА САЙТУ (HEADER)                     -->
+    <!-- ========================================== -->
+    <header class="fixed top-0 left-0 right-0 z-40 glass-panel border-b border-wood-700/60">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Логотип -->
+                <a href="#" class="flex items-center gap-3 group">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-ambercraft-500 to-terracotta-600 flex items-center justify-center shadow-lg shadow-ambercraft-500/20 group-hover:scale-105 transition-transform">
+                        <!-- Іконка крафтової банки/пляшки -->
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 3h6m-5 0v2.5c0 .8-.4 1.5-1 2l-1.2 1c-.5.4-.8 1-.8 1.7V19a2 2 0 002 2h6a2 2 0 002-2v-8.8c0-.7-.3-1.3-.8-1.7l-1.2-1c-.6-.5-1-1.2-1-2V3" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 13h10" />
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="font-serif text-2xl sm:text-3xl font-bold tracking-wider text-stone-100 block leading-none">KYM STORE</span>
+                        <span class="text-[11px] uppercase tracking-[0.2em] text-ambercraft-400 font-medium">Крафтові закрутки &amp; настоянки</span>
+                    </div>
+                </a>
+
+                <!-- Навігація (Десктоп) -->
+                <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-stone-300">
+                    <a href="#catalog" class="hover:text-ambercraft-400 transition-colors">Каталог</a>
+                    <a href="#sets" onclick="filterByCategory('sets')" class="hover:text-ambercraft-400 transition-colors">Дегустаційні сети</a>
+                    <a href="#about" class="hover:text-ambercraft-400 transition-colors">Про виробництво</a>
+                    <a href="#delivery" class="hover:text-ambercraft-400 transition-colors">Доставка та оплата</a>
+                </nav>
+
+                <!-- Кнопки дій: Кошик та мобільне меню -->
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleCart(true)" class="relative flex items-center gap-2.5 bg-wood-800 hover:bg-wood-700 border border-wood-700 text-stone-100 px-4 py-2.5 rounded-xl transition-all active:scale-95">
+                        <svg class="w-5 h-5 text-ambercraft-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <span class="hidden sm:inline text-sm font-medium">Кошик</span>
+                        <span id="cart-badge" class="bg-ambercraft-500 text-wood-950 text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+                    </button>
+
+                    <!-- Кнопка мобільного меню -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden p-2.5 rounded-xl bg-wood-800 border border-wood-700 text-stone-300 hover:text-white">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Мобільне меню -->
+        <div id="mobile-menu" class="hidden md:hidden bg-wood-900 border-b border-wood-700 px-4 pt-2 pb-5 space-y-2">
+            <a href="#catalog" onclick="toggleMobileMenu()" class="block px-3 py-2.5 rounded-lg hover:bg-wood-800 text-stone-200 font-medium">Каталог продукції</a>
+            <a href="#catalog" onclick="filterByCategory('sets'); toggleMobileMenu()" class="block px-3 py-2.5 rounded-lg hover:bg-wood-800 text-stone-200 font-medium">Дегустаційні сети</a>
+            <a href="#about" onclick="toggleMobileMenu()" class="block px-3 py-2.5 rounded-lg hover:bg-wood-800 text-stone-200 font-medium">Про KYM STORE</a>
+            <a href="#delivery" onclick="toggleMobileMenu()" class="block px-3 py-2.5 rounded-lg hover:bg-wood-800 text-stone-200 font-medium">Доставка та оплата</a>
+        </div>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- 2. ГОЛОВНИЙ ЕКРАН (HERO)                   -->
+    <!-- ========================================== -->
+    <section class="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden craft-pattern">
+        <!-- Декоративне тепле підсвічування -->
+        <div class="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-ambercraft-500/15 blur-[130px] rounded-full pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-7 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-wood-800/90 border border-ambercraft-500/30 text-ambercraft-400 text-xs font-semibold uppercase tracking-wider mb-6">
+                        <span class="w-2 h-2 rounded-full bg-ambercraft-400 animate-pulse"></span>
+                        Ручна робота • Лімітовані партії
+                    </div>
+                    <h1 class="font-serif text-4xl sm:text-6xl lg:text-7xl font-bold text-stone-100 leading-[1.08] mb-6">
+                        Смак справжнього дому у кожній <span class="text-transparent bg-clip-text bg-gradient-to-r from-ambercraft-400 via-orange-400 to-terracotta-500">банці та пляшці</span>
+                    </h1>
+                    <p class="text-base sm:text-lg text-stone-300/90 max-w-2xl mx-auto lg:mx-0 mb-8 leading-relaxed">
+                        Готуємо авторські домашні настоянки на натуральних ягодах і травах, вогняну кавказьку аджику та хрусткі закрутки за перевіреними сімейними рецептами. Жодних консервантів, барвників чи ароматизаторів.
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                        <a href="#catalog" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-ambercraft-500 to-terracotta-600 hover:from-ambercraft-400 hover:to-terracotta-500 text-white font-semibold shadow-lg shadow-ambercraft-500/25 transition-all text-center">
+                            Обрати смаколики
+                        </a>
+                        <a href="#sets" onclick="filterByCategory('sets')" class="w-full sm:w-auto px-8 py-4 rounded-xl bg-wood-800 hover:bg-wood-700 border border-wood-700 text-stone-200 font-semibold transition-all text-center">
+                            Дегустаційні сети
+                        </a>
+                    </div>
+
+                    <!-- Ключові переваги -->
+                    <div class="grid grid-cols-3 gap-4 mt-12 pt-8 border-t border-wood-800 text-left">
+                        <div>
+                            <div class="text-ambercraft-400 font-serif text-2xl sm:text-3xl font-bold">100%</div>
+                            <div class="text-xs sm:text-sm text-stone-400 mt-1">Натуральні фермерські овочі, ягоди та мед</div>
+                        </div>
+                        <div>
+                            <div class="text-ambercraft-400 font-serif text-2xl sm:text-3xl font-bold">14+ днів</div>
+                            <div class="text-xs sm:text-sm text-stone-400 mt-1">Витримка кожної настоянки для м'якого смаку</div>
+                        </div>
+                        <div>
+                            <div class="text-ambercraft-400 font-serif text-2xl sm:text-3xl font-bold">1–2 дні</div>
+                            <div class="text-xs sm:text-sm text-stone-400 mt-1">Надійна відправка Новою Поштою по Україні</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Візуальна картка-вітрина справа -->
+                <div class="lg:col-span-5">
+                    <div class="relative bg-gradient-to-b from-wood-800 to-wood-900 border border-wood-700 rounded-3xl p-6 sm:p-8 shadow-2xl">
+                        <div class="flex items-center justify-between mb-6">
+                            <span class="text-xs font-semibold uppercase tracking-widest text-ambercraft-400">Хіт сезону</span>
+                            <span class="px-3 py-1 rounded-full bg-terracotta-600/30 border border-terracotta-500/40 text-orange-300 text-xs font-medium">Обмежена серія</span>
+                        </div>
+                        
+                        <!-- Стилізована ілюстрація набору -->
+                        <div class="aspect-[4/3] rounded-2xl bg-gradient-to-br from-wood-950 via-wood-900 to-amber-950/40 border border-wood-700/80 flex flex-col items-center justify-center p-6 text-center relative overflow-hidden mb-6">
+                            <div class="text-6xl sm:text-7xl mb-3 drop-shadow-lg">🍒🌶️🥃</div>
+                            <div class="font-serif text-2xl font-bold text-stone-100">Дегустаційний сет «Застілля»</div>
+                            <p class="text-xs text-stone-400 mt-1 max-w-xs">Вишнівка 0.5 л + Хріновуха 0.5 л + Аджика Вогняна + Маринади</p>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-xs text-stone-400 block">Спеціальна ціна набору</span>
+                                <span class="text-2xl font-bold text-stone-100">980 грн</span>
+                                <span class="text-sm text-stone-500 line-through ml-2">1 120 грн</span>
+                            </div>
+                            <button onclick="addToCart(8)" class="px-5 py-3 rounded-xl bg-ambercraft-500 hover:bg-ambercraft-400 text-wood-950 font-bold text-sm transition-all active:scale-95">
+                                + У кошик
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 3. КАТАЛОГ ПРОДУКЦІЇ                       -->
+    <!-- ========================================== -->
+    <section id="catalog" class="py-16 sm:py-24 bg-wood-900/50 border-t border-wood-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
+                <div>
+                    <span class="text-ambercraft-400 text-xs font-semibold uppercase tracking-widest">Асортимент KYM STORE</span>
+                    <h2 class="font-serif text-3xl sm:text-5xl font-bold text-stone-100 mt-2">Домашня комора</h2>
+                </div>
+
+                <!-- Пошук та сортування -->
+                <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <div class="relative flex-1 sm:w-64">
+                        <input type="text" id="search-input" oninput="renderProducts()" placeholder="Пошук за назвою чи складом..." class="w-full bg-wood-950 border border-wood-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-stone-100 placeholder-stone-500 focus:outline-none focus:border-ambercraft-500">
+                        <svg class="w-4 h-4 text-stone-500 absolute left-3.5 top-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <select id="sort-select" onchange="renderProducts()" class="bg-wood-950 border border-wood-700 rounded-xl px-4 py-2.5 text-sm text-stone-200 focus:outline-none focus:border-ambercraft-500">
+                        <option value="default">За популярністю</option>
+                        <option value="price-asc">Від дешевших до дорожчих</option>
+                        <option value="price-desc">Від дорожчих до дешевших</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Вкладки фільтрів категорій -->
+            <div id="category-filters" class="flex flex-wrap gap-2.5 mb-10">
+                <button data-cat="all" onclick="filterByCategory('all')" class="cat-btn active px-5 py-2.5 rounded-xl text-sm font-semibold bg-ambercraft-500 text-wood-950 transition-all">
+                    Усі товари
+                </button>
+                <button data-cat="tinctures" onclick="filterByCategory('tinctures')" class="cat-btn px-5 py-2.5 rounded-xl text-sm font-medium bg-wood-800 text-stone-300 hover:bg-wood-700 border border-wood-700 transition-all">
+                    🥃 Домашні настоянки
+                </button>
+                <button data-cat="adjika" onclick="filterByCategory('adjika')" class="cat-btn px-5 py-2.5 rounded-xl text-sm font-medium bg-wood-800 text-stone-300 hover:bg-wood-700 border border-wood-700 transition-all">
+                    🌶️ Аджика та соуси
+                </button>
+                <button data-cat="preserves" onclick="filterByCategory('preserves')" class="cat-btn px-5 py-2.5 rounded-xl text-sm font-medium bg-wood-800 text-stone-300 hover:bg-wood-700 border border-wood-700 transition-all">
+                    🫙 Домашні закрутки
+                </button>
+                <button id="sets" data-cat="sets" onclick="filterByCategory('sets')" class="cat-btn px-5 py-2.5 rounded-xl text-sm font-medium bg-wood-800 text-stone-300 hover:bg-wood-700 border border-wood-700 transition-all">
+                    🎁 Дегустаційні сети
+                </button>
+            </div>
+
+            <!-- Сітка товарів -->
+            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Картки генеруються через JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 4. ПРО KYM STORE                           -->
+    <!-- ========================================== -->
+    <section id="about" class="py-20 bg-wood-950 border-t border-wood-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <span class="text-ambercraft-400 text-xs font-semibold uppercase tracking-widest">Філософія крафту</span>
+                    <h2 class="font-serif text-3xl sm:text-5xl font-bold text-stone-100 leading-tight">
+                        Чому домашнє від <span class="text-ambercraft-400">KYM STORE</span> смакує інакше?
+                    </h2>
+                    <p class="text-stone-300 leading-relaxed">
+                        Ми не масовий завод. Кожна партія аджики перетирається зі свіжого перцю чилі, часнику та духмяних спецій, а ягоди для настоянок збираються в сезон і настоюються на якісній основі та натуральному пасічному меду.
+                    </p>
+                    <div class="grid sm:grid-cols-2 gap-4 pt-2">
+                        <div class="p-4 rounded-2xl bg-wood-900 border border-wood-800">
+                            <div class="text-xl mb-2">🌿</div>
+                            <h3 class="font-semibold text-stone-100 mb-1">Чистий склад</h3>
+                            <p class="text-xs text-stone-400 leading-relaxed">Тільки овочі, спеції, ягоди, мед та сіль. Жодного оцтового концентрату чи підсилювачів смаку.</p>
+                        </div>
+                        <div class="p-4 rounded-2xl bg-wood-900 border border-wood-800">
+                            <div class="text-xl mb-2">📦</div>
+                            <h3 class="font-semibold text-stone-100 mb-1">Краш-тест пакування</h3>
+                            <p class="text-xs text-stone-400 leading-relaxed">Кожну скляну банку та пляшку загортаємо у тришаровий захист — усе доїжджає цілим.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Блок доставки та оплати -->
+                <div id="delivery" class="bg-wood-900 border border-wood-700 rounded-3xl p-6 sm:p-8 space-y-6">
+                    <h3 class="font-serif text-2xl sm:text-3xl font-bold text-stone-100">Доставка та оплата</h3>
+                    <ul class="space-y-4 text-sm text-stone-300">
+                        <li class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-ambercraft-500/20 text-ambercraft-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">1</span>
+                            <div>
+                                <strong class="text-stone-100 block">Нова Пошта по всій Україні</strong>
+                                Відправляємо щодня з понеділка по суботу. Замовлення, оформлені до 15:00, їдуть у той же день.
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-ambercraft-500/20 text-ambercraft-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">2</span>
+                            <div>
+                                <strong class="text-stone-100 block">Зручна оплата</strong>
+                                Оплата за реквізитами ФОП / на картку або післяплата при отриманні у відділенні Нової Пошти.
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="w-6 h-6 rounded-full bg-ambercraft-500/20 text-ambercraft-400 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">3</span>
+                            <div>
+                                <strong class="text-stone-100 block">Безкоштовна доставка від 1 500 грн</strong>
+                                При замовленні будь-яких товарів або сетів на суму від 1 500 грн доставку сплачуємо ми.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 5. ФУТЕР (FOOTER)                          -->
+    <!-- ========================================== -->
+    <footer class="bg-wood-900 border-t border-wood-800 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-8 border-b border-wood-800">
+                <div>
+                    <span class="font-serif text-2xl font-bold text-stone-100 tracking-wider">KYM STORE</span>
+                    <p class="text-xs text-stone-400 mt-1">Крафтові домашні настоянки, аджика та закрутки ручної роботи.</p>
+                </div>
+                <div class="flex flex-wrap gap-3">
+                    <a href="https://t.me/" target="_blank" rel="noopener" class="px-4 py-2 rounded-xl bg-wood-800 hover:bg-wood-700 border border-wood-700 text-xs font-medium text-stone-200 transition-colors">
+                        Telegram-канал
+                    </a>
+                    <a href="https://instagram.com/" target="_blank" rel="noopener" class="px-4 py-2 rounded-xl bg-wood-800 hover:bg-wood-700 border border-wood-700 text-xs font-medium text-stone-200 transition-colors">
+                        Instagram @kym.store
+                    </a>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 text-xs text-stone-500">
+                <p>© 2026 KYM STORE. Усі права захищено.</p>
+                <p class="text-ambercraft-500/90 font-medium">🔞 Настоянки реалізуються виключно особам, які досягли 18 років. Надмірне споживання алкоголю шкідливе для вашого здоров'я.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ========================================== -->
+    <!-- 6. МОДАЛЬНЕ ВІКНО ШВИДКОГО ПЕРЕГЛЯДУ       -->
+    <!-- ========================================== -->
+    <div id="product-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+        <div class="bg-wood-900 border border-wood-700 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl relative animate-[fadeIn_0.2s_ease-out]">
+            <button onclick="closeProductModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-wood-800 hover:bg-wood-700 text-stone-300 flex items-center justify-center transition-colors z-10">
+                ✕
+            </button>
+            <div id="modal-content" class="grid md:grid-cols-2">
+                <!-- Контент підставляється через JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 7. ВИЇЗНА ПАНЕЛЬ КОШИКА ТА ОФОРМЛЕННЯ     -->
+    <!-- ========================================== -->
+    <div id="cart-drawer" class="fixed inset-0 z-50 hidden">
+        <!-- Затемнення фону -->
+        <div onclick="toggleCart(false)" class="absolute inset-0 bg-black/70 backdrop-blur-xs"></div>
+        
+        <!-- Панель праворуч -->
+        <div class="absolute top-0 right-0 bottom-0 w-full max-w-md bg-wood-900 border-l border-wood-700 shadow-2xl flex flex-col">
+            <!-- Заголовок кошика -->
+            <div class="p-5 border-b border-wood-800 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <h3 class="font-serif text-2xl font-bold text-stone-100">Ваш кошик</h3>
+                    <span id="drawer-count" class="text-xs bg-wood-800 text-ambercraft-400 px-2.5 py-0.5 rounded-full border border-wood-700">0 шт.</span>
+                </div>
+                <button onclick="toggleCart(false)" class="w-9 h-9 rounded-xl bg-wood-800 hover:bg-wood-700 text-stone-300 flex items-center justify-center">✕</button>
+            </div>
+
+            <!-- Вміст кошика та форма -->
+            <div class="flex-1 overflow-y-auto p-5 space-y-6">
+                <!-- Список товарів -->
+                <div id="cart-items-list" class="space-y-3">
+                    <!-- Генерується JS -->
+                </div>
+
+                <!-- Форма оформлення замовлення (показується, коли кошик не порожній) -->
+                <form id="checkout-form" onsubmit="submitOrder(event)" class="hidden space-y-4 pt-4 border-t border-wood-800">
+                    <h4 class="font-serif text-xl font-bold text-stone-100">Оформлення доставки</h4>
+                    
+                    <div>
+                        <label class="block text-xs text-stone-400 mb-1">Ваше ім'я та прізвище *</label>
+                        <input type="text" id="cust-name" required placeholder="Наприклад: Олександр Коваль" class="w-full bg-wood-950 border border-wood-700 rounded-xl px-3.5 py-2.5 text-sm text-stone-100 focus:outline-none focus:border-ambercraft-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-stone-400 mb-1">Номер телефону (Telegram / Viber) *</label>
+                        <input type="tel" id="cust-phone" required placeholder="+380 (__) ___-__-__" class="w-full bg-wood-950 border border-wood-700 rounded-xl px-3.5 py-2.5 text-sm text-stone-100 focus:outline-none focus:border-ambercraft-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-stone-400 mb-1">Місто та відділення / поштомат Нової Пошти *</label>
+                        <input type="text" id="cust-city" required placeholder="м. Київ, відділення №15" class="w-full bg-wood-950 border border-wood-700 rounded-xl px-3.5 py-2.5 text-sm text-stone-100 focus:outline-none focus:border-ambercraft-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-stone-400 mb-1">Спосіб оплати</label>
+                        <select id="cust-payment" class="w-full bg-wood-950 border border-wood-700 rounded-xl px-3.5 py-2.5 text-sm text-stone-100 focus:outline-none focus:border-ambercraft-500">
+                            <option value="Оплата на картку / IBAN">Оплата на картку / рахунок</option>
+                            <option value="Післяплата (Нова Пошта)">Післяплата при отриманні (Нова Пошта)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-stone-400 mb-1">Коментар до замовлення</label>
+                        <textarea id="cust-comment" rows="2" placeholder="Побажання щодо гостроти або пакування..." class="w-full bg-wood-950 border border-wood-700 rounded-xl px-3.5 py-2 text-sm text-stone-100 focus:outline-none focus:border-ambercraft-500"></textarea>
+                    </div>
+
+                    <!-- Налаштування Telegram-бота для власника магазину -->
+                    <details class="bg-wood-950/80 border border-wood-800 rounded-xl p-3 text-xs text-stone-400">
+                        <summary class="cursor-pointer font-medium text-ambercraft-400 select-none">⚙️ Налаштування Telegram-сповіщень (для власника)</summary>
+                        <div class="mt-3 space-y-2.5">
+                            <p class="leading-relaxed">Щоб замовлення миттєво приходили вам у Telegram, вставте токен від <b>@BotFather</b> та ваш <b>Chat ID</b> (або впишіть їх прямо в код у константу <code class="text-stone-200">TELEGRAM_CONFIG</code>):</p>
+                            <input type="text" id="tg-token" placeholder="Bot Token (напр. 123456:ABC-DEF...)" class="w-full bg-wood-900 border border-wood-700 rounded-lg px-2.5 py-1.5 text-stone-200">
+                            <input type="text" id="tg-chatid" placeholder="Chat ID (напр. 987654321)" class="w-full bg-wood-900 border border-wood-700 rounded-lg px-2.5 py-1.5 text-stone-200">
+                        </div>
+                    </details>
+
+                    <button type="submit" id="submit-order-btn" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-ambercraft-500 to-terracotta-600 hover:from-ambercraft-400 hover:to-terracotta-500 text-white font-bold text-sm shadow-lg shadow-ambercraft-500/20 transition-all">
+                        Підтвердити замовлення
+                    </button>
+                </form>
+            </div>
+
+            <!-- Підсумок суми знизу кошика -->
+            <div id="cart-footer" class="hidden p-5 border-t border-wood-800 bg-wood-950">
+                <div class="flex items-center justify-between text-xs text-stone-400 mb-1">
+                    <span>Доставка Новою Поштою:</span>
+                    <span id="delivery-status" class="text-stone-200">За тарифами перевізника</span>
+                </div>
+                <div class="flex items-center justify-between text-lg font-bold text-stone-100">
+                    <span>Разом до сплати:</span>
+                    <span id="cart-total" class="text-ambercraft-400">0 грн</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 8. МОДАЛЬНЕ ВІКНО ПІДТВЕРДЖЕННЯ ЗАМОВЛЕННЯ -->
+    <!-- ========================================== -->
+    <div id="success-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div class="bg-wood-900 border border-ambercraft-500/40 rounded-3xl max-w-md w-full p-6 sm:p-8 text-center shadow-2xl">
+            <div class="w-16 h-16 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-3xl mx-auto mb-4">
+                ✓
+            </div>
+            <h3 class="font-serif text-3xl font-bold text-stone-100">Замовлення прийнято!</h3>
+            <p class="text-xs uppercase tracking-widest text-ambercraft-400 font-semibold mt-1" id="order-receipt-number">Чек №KYM-0000</p>
+            <p class="text-sm text-stone-300 mt-4 leading-relaxed" id="order-receipt-details">
+                Дякуємо за довіру до KYM STORE! Ми вже готуємо ваші крафтові смаколики до відправки.
+            </p>
+            <button onclick="closeSuccessModal()" class="mt-6 w-full py-3 rounded-xl bg-ambercraft-500 hover:bg-ambercraft-400 text-wood-950 font-bold text-sm transition-colors">
+                Повернутися до магазину
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT ЛОГІКА МАГАЗИНУ                 -->
+    <!-- ========================================== -->
+    <script>
+        // Конфігурація Telegram (можна вписати свої дані сюди назавжди)
+        const TELEGRAM_CONFIG = {
+            botToken: '', // Вставте сюди токен вашого бота
+            chatId: ''    // Вставте сюди ваш Chat ID
+        };
+
+        // База товарів KYM STORE (можна легко замінити emoji/градієнт на тег <img> з вашими фото)
+        const products = [
+            {
+                id: 1,
+                name: 'Аджика домашня «Вогняна»',
+                category: 'adjika',
+                categoryLabel: 'Аджика та соуси',
+                volume: '250 мл',
+                price: 145,
+                badge: '🔥 Гостра 5/5',
+                badgeColor: 'bg-red-500/20 text-red-300 border-red-500/30',
+                emoji: '🌶️',
+                gradient: 'from-red-950/60 to-wood-950',
+                shortDesc: 'Пекуча сира аджика з перцю чилі, часнику, кінзи та хмелі-сунелі.',
+                fullComposition: 'Перець чилі червоний (45%), солодкий перець ратунда, свіжий часник, волоський горіх, кінза, базилік, уцхо-сунелі, коріандр, морська сіль.',
+                storage: 'Зберігати у холодильнику при температурі +2...+6°C до 4 місяців.'
+            },
+            {
+                id: 2,
+                name: 'Аджика класична з волоським горіхом',
+                category: 'adjika',
+                categoryLabel: 'Аджика та соуси',
+                volume: '250 мл',
+                price: 155,
+                badge: '🌶️ Помірна 3/5',
+                badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+                emoji: '🥜',
+                gradient: 'from-amber-950/60 to-wood-950',
+                shortDesc: 'Ніжна кавказька рецептура з меленим добірним волоським горіхом та прянощами.',
+                fullComposition: 'Перець солодкий червоний, перець гострий стручковий, ядро волоського горіха (20%), часник, кріп, петрушка, сванська сіль, яблучний оцет натуральний.',
+                storage: 'Зберігати у прохолодному темному місці або холодильнику до 6 місяців.'
+            },
+            {
+                id: 3,
+                name: 'Настоянка «Вишнівка витримана»',
+                category: 'tinctures',
+                categoryLabel: 'Домашні настоянки',
+                volume: '500 мл',
+                price: 340,
+                badge: '🥃 Міцність 22%',
+                badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/30',
+                emoji: '🍒',
+                gradient: 'from-rose-950/70 to-wood-950',
+                shortDesc: 'Насичений рубіновий напій на стиглій подільській вишні з легкою кісточковою ноткою.',
+                fullComposition: 'Стигла вишня (45% об’єму), зерновий дистилят подвійної очистки, вода джерельна, цукровий сироп, дрібка кориці та гвоздики.',
+                storage: 'Витримка 30 днів. Подавати охолодженою до +8...+12°C. Тільки 18+.'
+            },
+            {
+                id: 4,
+                name: 'Настоянка «Хріновуха з медом»',
+                category: 'tinctures',
+                categoryLabel: 'Домашні настоянки',
+                volume: '500 мл',
+                price: 320,
+                badge: '🥃 Міцність 38%',
+                badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+                emoji: '🍯',
+                gradient: 'from-yellow-950/60 to-wood-950',
+                shortDesc: 'Класична зігріваюча хріновуха з м’яким медовим післясмаком та перчиком.',
+                fullComposition: 'Свіжий корінь хрону, натуральний липовий мед з домашньої пасіки, зерновий дистилят, цедра лимона, перець чилі, імбир.',
+                storage: 'Ідеальна до м’ясних страв та домашніх солінь. Подавати крижаною. Тільки 18+.'
+            },
+            {
+                id: 5,
+                name: 'Настоянка «Обліпиха на меду»',
+                category: 'tinctures',
+                categoryLabel: 'Домашні настоянки',
+                volume: '500 мл',
+                price: 350,
+                badge: '🥃 Міцність 20%',
+                badgeColor: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
+                emoji: '🍊',
+                gradient: 'from-orange-950/60 to-wood-950',
+                shortDesc: 'Яскрава вітамінна настоянка з дикої обліпихи, квіткового меду та апельсинової цедри.',
+                fullComposition: 'Ягоди обліпихи (40%), квітковий мед, зерновий дистилят, цедра свіжого апельсина, стручок ванілі.',
+                storage: 'Перед вживанням легко збовтати — можливий природний ягідний осад. Тільки 18+.'
+            },
+            {
+                id: 6,
+                name: 'Помідори чері мариновані з часником',
+                category: 'preserves',
+                categoryLabel: 'Домашні закрутки',
+                volume: '720 мл',
+                price: 165,
+                badge: '🌿 Хрусткі',
+                badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+                emoji: '🍅',
+                gradient: 'from-emerald-950/50 to-wood-950',
+                shortDesc: 'Солодкуваті томати чері з духмяним кропом, молодим часником та листям смородини.',
+                fullComposition: 'Томати чері ґрунтові, часник, парасольки кропу, лист хрону та чорної смородини, перець духмяний горошком, сіль, цукор, вода джерельна.',
+                storage: 'Зберігати при температурі від 0 до +20°C. Після відкриття — у холодильнику.'
+            },
+            {
+                id: 7,
+                name: 'Лечо домашнє «Закарпатське»',
+                category: 'preserves',
+                categoryLabel: 'Домашні закрутки',
+                volume: '500 мл',
+                price: 150,
+                badge: '🥗 Без оцту',
+                badgeColor: 'bg-lime-500/20 text-lime-300 border-lime-500/30',
+                emoji: '🫑',
+                gradient: 'from-lime-950/50 to-wood-950',
+                shortDesc: 'М’ясистий солодкий перець у густому соусі зі стиглих домашніх томатів.',
+                fullComposition: 'Перець болгарський товстостінний, сік томатний домашній, цибуля ріпчаста, морква, олія соняшникова нерафінована, часник, сіль, цукор.',
+                storage: 'Готова гарнірна закуска до м’яса чи картоплі. Зберігати до 12 місяців.'
+            },
+            {
+                id: 8,
+                name: 'Дегустаційний сет «Застілля»',
+                category: 'sets',
+                categoryLabel: 'Дегустаційні сети',
+                volume: '4 позиції (1.97 кг)',
+                price: 980,
+                badge: '⭐ Вигода 140 грн',
+                badgeColor: 'bg-ambercraft-500/25 text-ambercraft-400 border-ambercraft-500/40',
+                emoji: '🎁',
+                gradient: 'from-amber-900/50 to-wood-950',
+                shortDesc: 'Готовий набір для компанії або подарунку: 2 настоянки + вогняна аджика + чері.',
+                fullComposition: 'У наборі: Настоянка «Вишнівка витримана» (500 мл), Настоянка «Хріновуха з медом» (500 мл), Аджика «Вогняна» (250 мл), Помідори чері мариновані (720 мл) у крафтовому пакуванні.',
+                storage: 'Ідеальний подарунковий бокс. Відправка лише повнолітнім (18+).'
+            }
+        ];
+
+        // Стан фільтрів та кошика
+        let currentCategory = 'all';
+        let cart = JSON.parse(localStorage.getItem('kym_store_cart')) || [];
+
+        // Рендер карток товарів
+        function renderProducts() {
+            const grid = document.getElementById('products-grid');
+            const searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
+            const sortBy = document.getElementById('sort-select').value;
+
+            let filtered = products.filter(p => {
+                const matchCat = currentCategory === 'all' || p.category === currentCategory;
+                const matchSearch = p.name.toLowerCase().includes(searchQuery) || 
+                                    p.shortDesc.toLowerCase().includes(searchQuery) ||
+                                    p.fullComposition.toLowerCase().includes(searchQuery);
+                return matchCat && matchSearch;
+            });
+
+            if (sortBy === 'price-asc') {
+                filtered.sort((a, b) => a.price - b.price);
+            } else if (sortBy === 'price-desc') {
+                filtered.sort((a, b) => b.price - a.price);
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 bg-wood-950/60 rounded-3xl border border-wood-800">
+                        <div class="text-4xl mb-3">🔍</div>
+                        <p class="text-stone-300 font-medium">За вашим запитом товарів не знайдено</p>
+                        <button onclick="resetFilters()" class="mt-4 px-5 py-2 rounded-xl bg-wood-800 text-ambercraft-400 text-sm hover:bg-wood-700">Скинути фільтри</button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(product => `
+                <div class="group bg-wood-950 border border-wood-800 hover:border-ambercraft-500/50 rounded-3xl overflow-hidden flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 shadow-lg">
+                    <div>
+                        <!-- Візуальна шапка картки (можна замінити на <img src="..." class="w-full h-48 object-cover">) -->
+                        <div onclick="openProductModal(${product.id})" class="cursor-pointer relative h-48 bg-gradient-to-br ${product.gradient} flex items-center justify-center border-b border-wood-800/80 overflow-hidden">
+                            <span class="absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${product.badgeColor}">
+                                ${product.badge}
+                            </span>
+                            <span class="absolute top-3 right-3 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-wood-900/90 text-stone-300 border border-wood-700">
+                                ${product.volume}
+                            </span>
+                            <div class="text-6xl group-hover:scale-110 transition-transform duration-300 select-none">
+                                ${product.emoji}
+                            </div>
+                            <span class="absolute bottom-2.5 right-3 text-[11px] text-stone-400 opacity-0 group-hover:opacity-100 transition-opacity bg-wood-900/90 px-2.5 py-1 rounded-md">
+                                Детальніше →
+                            </span>
+                        </div>
+
+                        <!-- Опис товару -->
+                        <div class="p-5">
+                            <div class="text-[11px] uppercase tracking-wider text-ambercraft-400/90 font-semibold mb-1">${product.categoryLabel}</div>
+                            <h3 onclick="openProductModal(${product.id})" class="cursor-pointer font-serif text-xl font-bold text-stone-100 group-hover:text-ambercraft-400 transition-colors leading-snug mb-2">
+                                ${product.name}
+                            </h3>
+                            <p class="text-xs text-stone-400 leading-relaxed line-clamp-2">
+                                ${product.shortDesc}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Ціна та кнопка -->
+                    <div class="px-5 pb-5 pt-2 flex items-center justify-between gap-3">
+                        <div>
+                            <span class="text-xl font-bold text-stone-100">${product.price} грн</span>
+                        </div>
+                        <button onclick="addToCart(${product.id})" class="px-4 py-2.5 rounded-xl bg-wood-800 hover:bg-ambercraft-500 text-stone-100 hover:text-wood-950 font-semibold text-xs border border-wood-700 hover:border-ambercraft-500 transition-all active:scale-95">
+                            + До кошика
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Фільтрація за категоріями
+        function filterByCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if (btn.dataset.cat === category) {
+                    btn.className = 'cat-btn active px-5 py-2.5 rounded-xl text-sm font-semibold bg-ambercraft-500 text-wood-950 transition-all';
+                } else {
+                    btn.className = 'cat-btn px-5 py-2.5 rounded-xl text-sm font-medium bg-wood-800 text-stone-300 hover:bg-wood-700 border border-wood-700 transition-all';
+                }
+            });
+            renderProducts();
+        }
+
+        function resetFilters() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('sort-select').value = 'default';
+            filterByCategory('all');
+        }
+
+        // Модальне вікно товару
+        function openProductModal(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+
+            const modal = document.getElementById('product-modal');
+            const content = document.getElementById('modal-content');
+
+            content.innerHTML = `
+                <div class="bg-gradient-to-br ${product.gradient} p-8 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-wood-800">
+                    <div class="text-8xl mb-4">${product.emoji}</div>
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold border ${product.badgeColor}">${product.badge}</span>
+                    <span class="text-xs text-stone-400 mt-2">Об'єм / вага: ${product.volume}</span>
+                </div>
+                <div class="p-6 sm:p-8 flex flex-col justify-between space-y-5">
+                    <div>
+                        <span class="text-xs uppercase tracking-widest text-ambercraft-400 font-semibold">${product.categoryLabel}</span>
+                        <h3 class="font-serif text-2xl sm:text-3xl font-bold text-stone-100 mt-1">${product.name}</h3>
+                        <p class="text-sm text-stone-300 mt-3 leading-relaxed">${product.shortDesc}</p>
+                        
+                        <div class="mt-4 pt-4 border-t border-wood-800 space-y-2.5 text-xs">
+                            <div>
+                                <span class="text-stone-400 font-semibold block">Натуральний склад:</span>
+                                <span class="text-stone-200 leading-relaxed">${product.fullComposition}</span>
+                            </div>
+                            <div>
+                                <span class="text-stone-400 font-semibold block">Умови зберігання:</span>
+                                <span class="text-stone-300">${product.storage}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-wood-800 flex items-center justify-between gap-4">
+                        <div class="text-2xl font-bold text-ambercraft-400">${product.price} грн</div>
+                        <button onclick="addToCart(${product.id}); closeProductModal();" class="px-6 py-3 rounded-xl bg-ambercraft-500 hover:bg-ambercraft-400 text-wood-950 font-bold text-sm transition-all">
+                            Додати у кошик
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeProductModal() {
+            const modal = document.getElementById('product-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Робота з кошиком
+        function saveCart() {
+            localStorage.setItem('kym_store_cart', JSON.stringify(cart));
+            updateCartUI();
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ id: product.id, name: product.name, price: product.price, volume: product.volume, emoji: product.emoji, qty: 1 });
+            }
+
+            saveCart();
+            showToast(`«${product.name}» додано до кошика`);
+        }
+
+        function changeQty(productId, delta) {
+            const item = cart.find(i => i.id === productId);
+            if (!item) return;
+
+            item.qty += delta;
+            if (item.qty <= 0) {
+                cart = cart.filter(i => i.id !== productId);
+            }
+            saveCart();
+        }
+
+        function updateCartUI() {
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            const totalSum = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+            document.getElementById('cart-badge').textContent = totalQty;
+            document.getElementById('drawer-count').textContent = `${totalQty} шт.`;
+
+            const listEl = document.getElementById('cart-items-list');
+            const formEl = document.getElementById('checkout-form');
+            const footerEl = document.getElementById('cart-footer');
+
+            if (cart.length === 0) {
+                listEl.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="text-5xl mb-3">🧺</div>
+                        <p class="text-stone-300 font-medium">Ваш кошик поки порожній</p>
+                        <p class="text-xs text-stone-500 mt-1">Оберіть домашні настоянки чи аджику з каталогу</p>
+                    </div>
+                `;
+                formEl.classList.add('hidden');
+                footerEl.classList.add('hidden');
+                return;
+            }
+
+            formEl.classList.remove('hidden');
+            footerEl.classList.remove('hidden');
+
+            listEl.innerHTML = cart.map(item => `
+                <div class="flex items-center justify-between gap-3 bg-wood-950 border border-wood-800 p-3 rounded-2xl">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-11 h-11 rounded-xl bg-wood-900 flex items-center justify-center text-2xl shrink-0">${item.emoji}</div>
+                        <div class="min-w-0">
+                            <h5 class="text-sm font-semibold text-stone-100 truncate">${item.name}</h5>
+                            <span class="text-xs text-stone-400">${item.volume} • ${item.price} грн</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="changeQty(${item.id}, -1)" class="w-7 h-7 rounded-lg bg-wood-800 hover:bg-wood-700 text-stone-200 font-bold text-sm">−</button>
+                        <span class="text-sm font-semibold w-5 text-center">${item.qty}</span>
+                        <button onclick="changeQty(${item.id}, 1)" class="w-7 h-7 rounded-lg bg-wood-800 hover:bg-wood-700 text-stone-200 font-bold text-sm">+</button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('cart-total').textContent = `${totalSum.toLocaleString('uk-UA')} грн`;
+            const deliveryEl = document.getElementById('delivery-status');
+            if (totalSum >= 1500) {
+                deliveryEl.textContent = 'Безкоштовно (від 1 500 грн)';
+                deliveryEl.className = 'text-emerald-400 font-semibold';
+            } else {
+                deliveryEl.textContent = 'За тарифами Нової Пошти';
+                deliveryEl.className = 'text-stone-300';
+            }
+        }
+
+        function toggleCart(open) {
+            const drawer = document.getElementById('cart-drawer');
+            if (open) {
+                drawer.classList.remove('hidden');
+            } else {
+                drawer.classList.add('hidden');
+            }
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+
+        // Відправка замовлення (з підтримкою Telegram API)
+        async function submitOrder(e) {
+            e.preventDefault();
+            if (cart.length === 0) return;
+
+            const btn = document.getElementById('submit-order-btn');
+            btn.disabled = true;
+            btn.textContent = 'Відправляємо замовлення...';
+
+            const name = document.getElementById('cust-name').value.trim();
+            const phone = document.getElementById('cust-phone').value.trim();
+            const city = document.getElementById('cust-city').value.trim();
+            const payment = document.getElementById('cust-payment').value;
+            const comment = document.getElementById('cust-comment').value.trim();
+
+            const orderNumber = 'KYM-' + Math.floor(1000 + Math.random() * 9000);
+            const totalSum = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+            const itemsText = cart.map((item, idx) => 
+                `${idx + 1}. ${item.name} (${item.volume}) — ${item.qty} шт. × ${item.price} грн = ${item.qty * item.price} грн`
+            ).join('\n');
+
+            const message = `🏺 НОВЕ ЗАМОВЛЕННЯ ${orderNumber} (KYM STORE)\n\n` +
+                            `👤 Клієнт: ${name}\n` +
+                            `📞 Телефон: ${phone}\n` +
+                            `🚚 Доставка: ${city}\n` +
+                            `💳 Оплата: ${payment}\n` +
+                            (comment ? `💬 Коментар: ${comment}\n` : '') +
+                            `\n📦 Склад замовлення:\n${itemsText}\n\n` +
+                            `💰 Разом: ${totalSum} грн`;
+
+            // Перевіряємо, чи вказано токен Telegram
+            const token = document.getElementById('tg-token').value.trim() || TELEGRAM_CONFIG.botToken;
+            const chatId = document.getElementById('tg-chatid').value.trim() || TELEGRAM_CONFIG.chatId;
+
+            if (token && chatId) {
+                try {
+                    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ chat_id: chatId, text: message })
+                    });
+                } catch (err) {
+                    console.error('Помилка відправки в Telegram:', err);
+                }
+            }
+
+            // Очищаємо кошик та показуємо чек
+            cart = [];
+            saveCart();
+            toggleCart(false);
+            document.getElementById('checkout-form').reset();
+
+            btn.disabled = false;
+            btn.textContent = 'Підтвердити замовлення';
+
+            document.getElementById('order-receipt-number').textContent = `Чек №${orderNumber}`;
+            document.getElementById('order-receipt-details').innerHTML = `
+                Дякуємо, <b>${name}</b>! Ваше замовлення на суму <b>${totalSum} грн</b> прийнято в роботу.<br>
+                Ми зв'яжемося з вами за номером <b>${phone}</b> для підтвердження відправки у <b>${city}</b>.
+            `;
+            const successModal = document.getElementById('success-modal');
+            successModal.classList.remove('hidden');
+            successModal.classList.add('flex');
+        }
+
+        function closeSuccessModal() {
+            const successModal = document.getElementById('success-modal');
+            successModal.classList.add('hidden');
+            successModal.classList.remove('flex');
+        }// Спливаючі повідомлення
+        function showToast(text) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'bg-wood-800 border border-ambercraft-500/50 text-stone-100 px-4 py-3 rounded-xl shadow-xl text-xs font-medium flex items-center gap-2 transition-all';
+            toast.innerHTML = `<span class="text-ambercraft-400">✓</span> <span>${text}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        // Ініціалізація при завантаженні сторінки
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            updateCartUI();
+        });// Спливаючі повідомлення
+        function showToast(text) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'bg-wood-800 border border-ambercraft-500/50 text-stone-100 px-4 py-3 rounded-xl shadow-xl text-xs font-medium flex items-center gap-2 transition-all';
+            toast.innerHTML = `<span class="text-ambercraft-400">✓</span> <span>${text}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        } 
+        // Ініціалізація при завантаженні сторінки
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            updateCartUI();
+        });
+    </script>
+</body>
+</html>
+
+        
